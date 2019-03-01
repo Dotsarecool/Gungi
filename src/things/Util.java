@@ -3,9 +3,6 @@ package things;
 public class Util {
 	
 	public static final String[] LEGEND = {
-			"",
-			"",
-			"",
 			"Ll = Lieutenant General",
 			"Jj = Major General",
 			"Gg = General",
@@ -18,9 +15,7 @@ public class Util {
 			"Yy = Spy",
 			"Aa = Archer",
 			"Pp = Pawn",
-			"Mm = Marshal",
-			"",
-			""
+			"Mm = Marshal"
 	};
 	
 	public static final int[][] directions = {

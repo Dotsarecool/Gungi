@@ -183,9 +183,14 @@ public class Board {
 	}
 	
 	public void print(Position p, List<Position> highlight) {
-		System.out.println("    1   2   3   4   5   6   7   8   9");
+		System.out.printf("  ");
+		for (int i = 0; i < MAX_FILES; i++) {
+			System.out.printf("  %2d", i+1);
+		}
+		System.out.println();
+		
 		for (int i = MAX_RANKS - 1; i >= 0; i--) {
-			System.out.print("  +");
+			System.out.print("   +");
 			for (int j = 0; j < pieces[i].length; j++) {
 				boolean has = false, pick = p != null && p.rank() == i + 1 && p.file() == j + 1;
 				if (highlight != null) {
@@ -197,13 +202,19 @@ public class Board {
 					}
 				}
 				System.out.print(
-						(pick && p.tier() == 1 ? "O" : "-") + 
-						(has ? "v" : (pick && p.tier() == 2 ? "O" : "-")) + 
-						(pick && p.tier() == 3 ? "O" : "-") + 
+						(pick && p.tier() == 1 ? "O" : "-") +
+						(has ? "v" : (pick && p.tier() == 2 ? "O" : "-")) +
+						(pick && p.tier() == 3 ? "O" : "-") +
 						"+");
 			}
-			System.out.println(" " + Util.LEGEND[2*(MAX_RANKS - 1 - i)]);
-			System.out.print((i+1) + " |");
+			
+			if (2 * (MAX_RANKS - 1 - i) < Util.LEGEND.length) {
+				System.out.printf("   %s%n", Util.LEGEND[2*(MAX_RANKS - 1 - i)]);
+			} else {
+				System.out.println();
+			}
+			
+			System.out.printf("%2d |", i + 1);
 			for (int j = 0; j < pieces[i].length; j++) {
 				for (int k = 0; k < 3; k++) {
 					if (k < pieces[i][j].size()) {
@@ -215,9 +226,18 @@ public class Board {
 				}
 				System.out.print("|");
 			}
-			System.out.println(" " + Util.LEGEND[2*(MAX_RANKS - 1 - i) + 1]);
+			
+			if (2 * (MAX_RANKS - 1 - i) + 1 < Util.LEGEND.length) {
+				System.out.printf("   %s%n", Util.LEGEND[2*(MAX_RANKS - 1 - i) + 1]);
+			} else {
+				System.out.println();
+			}
 		}
-		System.out.println("  +---+---+---+---+---+---+---+---+---+");
+
+		System.out.print("   +");
+		for (int i = 0; i < MAX_FILES; i++) {
+			System.out.print("---+");
+		}
 		System.out.println();
 	}
 	

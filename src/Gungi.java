@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +19,7 @@ public class Gungi {
 	
 	static int turn = TURN_P1;
 	static Scanner in = new Scanner(System.in);
+	static long gameId = System.currentTimeMillis();
 	static Random rand = new Random();
 	
 	public static void main(String[] args) {
@@ -127,7 +131,7 @@ public class Gungi {
 		}
 	}
 	
-	public static void doDrop(Board b, Player p, int[] check, boolean forceArea, boolean forceMarshall) {
+	public static void doDrop(Board b, Player p, int[] check, boolean placementPhase, boolean forceMarshall) {
 		int pidx = -1;
 		if (forceMarshall) {
 			for (int i = 0; i < p.getHand().size(); i++) {
@@ -141,7 +145,7 @@ public class Gungi {
 		}
 		IPiece piece = p.getHand().get(pidx);
 		
-		List<Position> list = piece.getValidDrops(forceArea);
+		List<Position> list = piece.getValidDrops(placementPhase);
 		
 		b.print(null, list);
 		
@@ -150,7 +154,7 @@ public class Gungi {
 		Position pos = null;
 		do {
 			pos = promptPosition("Where to drop this " + piece.toString() + " piece?");
-		} while (!list.contains(pos) || !validateCheckMove(b, piece, null, pos, check));
+		} while (!list.contains(pos) || (!placementPhase && !validateCheckMove(b, piece, null, pos, check)));
 		
 		p.drop(piece, pos);
 		
@@ -181,8 +185,8 @@ public class Gungi {
 			return false;
 		}
 		
-		// if in checkmate, but this was a dropped pawn, invalidate and revert check array
-		if (newCheck[turn ^ 1] == 2 && tempPiece instanceof Pawn) {
+		// if in check/mate, but this was a dropped pawn, invalidate and revert check array
+		if (newCheck[turn ^ 1] != 0 && tempPiece instanceof Pawn) {
 			List<Position> pawnAttacks = tempPiece.getValidAttacks();
 			
 			for (Position w : pawnAttacks) {
@@ -210,12 +214,23 @@ public class Gungi {
 		System.out.println(s);
 	}
 	
+	public static String read() {
+		String line = in.nextLine();
+		try (FileWriter fw = new FileWriter(new File("res/game_" + gameId + ".txt"), true)){
+			fw.write(String.format("%s%n", line));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return line;
+	}
+	
 	public static Position promptPosition(String message) {
 		write(message);
 		int r = -1, f = -1, t = -1;
+		
 		do {
 			System.out.print(">> ");
-			String line = in.nextLine();
+			String line = read();
 			
 			String[] opts = line.trim().split("[-:,\\s]+");
 			try {
@@ -234,6 +249,7 @@ public class Gungi {
 				write("Try again.");
 			}
 		} while (!(r > 0 && r <= Board.MAX_RANKS && f > 0 && f <= Board.MAX_FILES && t > 0 && t <= Board.MAX_TIER));
+		
 		return new Position(r, f, t);
 	}
 	
@@ -244,6 +260,7 @@ public class Gungi {
 	
 	public static int promptChoice(String message, Object[] options) {
 		write(message);
+		
 		if (options.length > 10) {
 			for (int i = 0; i < 1 + options.length / 4; i++) {
 				String a = (4*i+0 < options.length) ? String.format(" [%02d] %-6s", 4*i+0, options[4*i+0]) : "";
@@ -257,10 +274,12 @@ public class Gungi {
 				write(String.format(" [%02d] %s", i, options[i]));
 			}
 		}
+		
 		int result = -1;
+		
 		do {
 			System.out.print(">> ");
-			String line = in.nextLine();
+			String line = read();
 			
 			try {
 				result = Integer.parseInt(line);
@@ -274,6 +293,7 @@ public class Gungi {
 				write("Try again.");
 			}
 		} while (result < 0 || result >= options.length);
+		
 		return result;
 	}
 	
